@@ -39,10 +39,12 @@ def compute_payments(I_l = 1200, I = 1300, I_h = 2000):
                              index=["A Invest Now", "A Wait time 1"],
                              columns=["B Invest Now", "B Wait time 1"])
     
-    print(values_df)
     return values_df
 
-
-compute_payments()
+for I_h in [2000, 1800, 1600, 1400, 1300]:
+    df = compute_payments(I_h=I_h)
+    print('I_h: ', I_h)
+    print(df)
+    print("##########")
 
 
