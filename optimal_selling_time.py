@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 from plotly.offline import plot
-
+import math
 import time
 
 # Inputs
@@ -21,6 +21,9 @@ values = dict()
 sell_now = dict()
 sell_after = dict()
 strategy = dict()
+
+def truncate(f, n):
+    return math.floor(f * 10 ** n) / 10 ** n
 
 # recursive impl of the value function
 def recursive_value(t, s):
@@ -32,25 +35,23 @@ def recursive_value(t, s):
 
 # dynamic programming impl of the value function
 def dynamic_value(t, s):
-    if t == T:
-        sell_now[t, s] = round(s-k, 4)
-        sell_after[t, s] = 0
-        values[t, s] = np.max([sell_now[t, s], sell_after[t, s]])
+    
+    if (t, s) not in values:
+        if t == T:
+            sell_now[t, s] = truncate(s-k, 2)
+            sell_after[t, s] = 0
+            values[t, s] = np.max([sell_now[t,s], sell_after[t,s]])
+        else:
+            sell_now[t,s] = truncate(s-k, 2)
+            sell_after[t,s] = truncate(p * dynamic_value(t+1, u*s) + (1-p) * dynamic_value(t+1, d*s),  2)
+            values[t, s] = np.max([sell_now[t,s], sell_after[t,s]]) 
+        
         if sell_now[t, s] >= sell_after[t, s]:
             strategy[t, s] = 1
         else:
             strategy[t, s] = 0
-        return values[t, s] 
-    else:
-        if (t, s) not in values:
-            sell_now[t, s] = round(s-k, 4)
-            sell_after[t, s] = round(p * dynamic_value(t+1,round(u*s, 4)) + (1-p) * dynamic_value(t+1,round(d*s,4)), 4)
-            values[t, s] = np.max([sell_now[t, s], sell_after[t, s]]) 
-            if sell_now[t, s] >= sell_after[t, s]:
-                strategy[t, s] = 1
-            else:
-                strategy[t, s] = 0
-        return values[t, s] 
+        
+    return values[t, s] 
 
 # rerusive is too slow, if T is big
 #start_time = time.time()
@@ -58,7 +59,7 @@ def dynamic_value(t, s):
 #print(a)
 #print(" recursive : --- %.5s seconds ---" % (time.time() - start_time))
 
-# dynamic is much faster when T is bigger
+# dynamic is much faster when T is bigger: 35sec when T =250
 start_time = time.time()
 a = dynamic_value(0, S0)
 print(a)
@@ -91,7 +92,7 @@ strategy_df.rename(columns = {1:'strategy'}, inplace = True)
 
 df = pd.merge(df, strategy_df, on=['time','price'])
 
-df = df[["time", "price", "sell_now", "sell_after", "value", "strategy"]]
+df = df[["time", "price", "sell_now", "sell_after", "value", "strategy"]]  
 
 df.to_csv("data.csv", index=False)
 df["strategy"] = df["strategy"].astype(str)
@@ -99,8 +100,8 @@ df["strategy"] = df["strategy"].astype(str)
 df["value"] = df["value"] + 0.00001 # so that the 0 values could be seen on the plot
 
 # plotting
-fig = px.scatter(df, x="time", y="price", color="strategy", size="value",
-                 hover_data=['price', 'sell_now', 'sell_after', 'value'])
+fig = px.scatter(df, x="time", y="price", color="strategy", # size="value",
+                 hover_data=['price', 'sell_now', 'sell_after', 'value']) # 
 plot(fig)
 
 #col = np.where(np.array(list(strategy.values())) == 1,'r', 'b')
