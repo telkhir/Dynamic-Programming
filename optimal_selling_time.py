@@ -15,7 +15,7 @@ from plotly.offline import plot
 import time
 
 # Inputs
-T, S0, p, u, d, k = 12, 100, 0.5, 1.05, 0.95, 80
+T, S0, p, u, d, k = 250, 100, 0.5, 1.05, 0.95, 80
 
 values = dict()
 sell_now = dict()

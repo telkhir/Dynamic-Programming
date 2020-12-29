@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Dec 22 17:39:01 2020
+Created on Wed Dec 23 15:58:18 2020
 
 @author: Taoufik.ELKHIRAOUI
 """
+
 
 import numpy as np
 import pandas as pd
@@ -41,27 +42,9 @@ def compute_payments(I_l = 1200, I = 1300, I_h = 2000):
     
     return values_df
 
-#• Condition 1 of first mover advantage:
-# I_h >= 1475 ( the limit higher cost: if I_h is less than 1475, there is no first mover advantage )
-for cost in [2000, 1800, 1600, 1480, 1475, 1400, 1300]:
-    df = compute_payments(I_h=cost)
-    print('I_h: ', cost)
+#• 1475 is the limit cost: if I_h is less than that, there is no first modver advantage 
+for I_h in [2000, 1800, 1600, 1500, 1480, 1475, 1470, 1450, 1400, 1300]:
+    df = compute_payments(I_h=I_h)
+    print('I_h: ', I_h)
     print(df)
     print("###############################")
-    
-print("###############################")
-print("###############################")
-print("###############################")
-#• Condition 2 of first mover advantage:
-# I_l <= 1220 ( the limit lower cost: if I_l is more than 1220, there is no first mover advantage )
-
-for cost in [1300, 1220, 1200, 1100, 1000]:
-    df = compute_payments(I_l=cost)
-    print('I_l: ', cost)
-    print(df)
-    print("###############################")
-
-
-
-
-
